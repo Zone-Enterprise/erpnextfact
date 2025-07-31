@@ -236,7 +236,7 @@ async function copyFiles() {
     if (await fs.pathExists(assetsDir)) {
       await fs.copy(assetsDir, buildAssetsDir);
     } else {
-      log('Assets directory not found, creating empty placeholder');
+      log(`Assets directory not found at ${assetsDir}, creating empty placeholder at ${buildAssetsDir}`);
       await fs.ensureDir(buildAssetsDir);
     }
 
