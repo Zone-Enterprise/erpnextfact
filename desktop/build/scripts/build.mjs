@@ -244,7 +244,7 @@ async function copyFiles() {
     if (await fs.pathExists(configDir)) {
       await fs.copy(configDir, buildConfigDir);
     } else {
-      log('Config directory not found, creating empty placeholder');
+      log(`Config directory not found at ${configDir}, creating empty placeholder at ${buildConfigDir}`);
       await fs.ensureDir(buildConfigDir);
     }
 
