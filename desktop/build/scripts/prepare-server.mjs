@@ -7,7 +7,7 @@
  * It checks for dependencies, builds assets, and creates a minimal server bundle.
  */
 
-import { exec, execSync } from 'child_process';
+import { exec, execSync, execFile } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -88,7 +88,7 @@ async function buildERPNextAssets() {
     
     if (isBenchDir) {
       // We're in a bench directory, build directly
-      await execCommand('cd ' + rootDir + ' && bench build', { stdio: 'inherit' });
+      await execFileCommand('bench', ['build'], { cwd: rootDir, stdio: 'inherit' });
     } else {
       // We're not in a bench directory, try to find bench
       console.log(chalk.yellow('⚠️ Not in a bench directory. Trying to find ERPNext installation...'));
@@ -105,7 +105,7 @@ async function buildERPNextAssets() {
       for (const location of possibleLocations) {
         if (location && await fs.pathExists(location)) {
           console.log(chalk.green('✓ Found bench at: ' + location));
-          await execCommand('cd ' + location + ' && bench build', { stdio: 'inherit' });
+          await execFileCommand('bench', ['build'], { cwd: location, stdio: 'inherit' });
           benchFound = true;
           break;
         }
@@ -268,6 +268,21 @@ async function compressServerBundle() {
 function execCommand(command, options = {}) {
   return new Promise((resolve, reject) => {
     exec(command, options, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+}
+
+/**
+ * Execute a file with arguments and return a promise
+ */
+function execFileCommand(command, args = [], options = {}) {
+  return new Promise((resolve, reject) => {
+    execFile(command, args, options, (error, stdout, stderr) => {
       if (error) {
         reject(error);
         return;
