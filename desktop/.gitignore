@@ -1,0 +1,103 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build output
+dist/
+dist_electron/
+build/output/
+*.js.map
+
+# Distribution files
+*.tgz
+*.zip
+*.dmg
+*.exe
+*.deb
+*.rpm
+*.AppImage
+*.snap
+*.msi
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Electron-specific
+.electron-vue/
+release/
+.env.json
+
+# Testing
+coverage/
+.nyc_output/
+
+# Cache directories
+.npm/
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Temporary files
+temp/
+tmp/
+.tmp/
+
+# SQLite database files (if used for development)
+*.sqlite
+*.sqlite3
+*.db
+
+# MariaDB data files (if embedded)
+mariadb-data/
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# Application specific
+config.local.json
+user-preferences.json
