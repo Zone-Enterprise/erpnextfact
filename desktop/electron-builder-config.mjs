@@ -13,18 +13,7 @@ const root = path.resolve(dirname, '..');
 const buildDirPath = path.join(root, 'desktop/dist_electron/build');
 const packageDirPath = path.join(root, 'desktop/dist_electron/bundled');
 
-// Define file associations for ERPNext related files
-const fileAssociations = [
-  {
-    ext: 'erpnext',
-    name: 'ERPNext File',
-    description: 'ERPNext Data File',
-    role: 'Editor',
-    icon: 'build/icons/file-icon.ico'
-  }
-];
-
-const erpnextDesktopConfig = {
+export default {
   productName: 'ERPNext Desktop',
   appId: 'com.zone-enterprise.erpnext-desktop',
   copyright: `Copyright © ${new Date().getFullYear()} Zone Enterprise`,
@@ -135,7 +124,15 @@ const erpnextDesktopConfig = {
       }
     ],
     artifactName: '${productName}-${version}-${arch}.${ext}',
-    fileAssociations: fileAssociations,
+    fileAssociations: [
+      {
+        ext: 'erpnext',
+        name: 'ERPNext File',
+        description: 'ERPNext Data File',
+        role: 'Editor',
+        icon: 'build/icons/file-icon.ico'
+      }
+    ],
     extraFiles: [
       {
         from: 'desktop/assets/scripts/win',
@@ -191,7 +188,15 @@ const erpnextDesktopConfig = {
       }
     ],
     artifactName: '${productName}-${version}-${arch}.${ext}',
-    fileAssociations: fileAssociations,
+    fileAssociations: [
+      {
+        ext: 'erpnext',
+        name: 'ERPNext File',
+        description: 'ERPNext Data File',
+        role: 'Editor',
+        icon: 'build/icons/file-icon.ico'
+      }
+    ],
     extraFiles: [
       {
         from: 'desktop/assets/scripts/linux',
@@ -249,5 +254,3 @@ const erpnextDesktopConfig = {
     }
   }
 };
-
-export default erpnextDesktopConfig;

@@ -1,0 +1,71 @@
+{
+  "productName": "ERPNext Desktop",
+  "appId": "com.zone-enterprise.erpnext-desktop",
+  "copyright": "Copyright © 2025 Zone Enterprise",
+  "directories": {
+    "output": "dist_electron/bundled",
+    "buildResources": "build",
+    "app": "dist_electron/build"
+  },
+  "files": [
+    "**/*",
+    "!node_modules/**/{CHANGELOG.md,README.md,README,readme.md,readme}",
+    "!node_modules/**/{test,__tests__,tests,powered-test,example,examples}"
+  ],
+  "extraResources": [
+    {
+      "from": "assets",
+      "to": "assets"
+    },
+    {
+      "from": "config",
+      "to": "config"
+    }
+  ],
+  "asarUnpack": [
+    "**/*.node",
+    "**/assets/bench-template/**",
+    "**/assets/mariadb/**"
+  ],
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "Zone-Enterprise",
+      "repo": "erpnextfact"
+    }
+  ],
+  "mac": {
+    "category": "public.app-category.business",
+    "icon": "build/icon.icns",
+    "target": [
+      "dmg",
+      "zip"
+    ]
+  },
+  "win": {
+    "icon": "build/icon.ico",
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ]
+  },
+  "linux": {
+    "icon": "build/icons",
+    "category": "Office",
+    "target": [
+      "deb",
+      "AppImage",
+      "rpm"
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
+  }
+}

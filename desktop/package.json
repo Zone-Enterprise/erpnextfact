@@ -12,6 +12,7 @@
     "build:win": "node build/scripts/build.mjs --win",
     "build:mac": "node build/scripts/build.mjs --mac",
     "build:linux": "node build/scripts/build.mjs --linux",
+    "build:test": "npx vite build && npx electron-builder --linux dir --config electron-builder.json",
     "postinstall": "electron-rebuild",
     "postuninstall": "electron-rebuild",
     "start-server": "node scripts/start-server.js",

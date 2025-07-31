@@ -25,6 +25,9 @@ export default defineConfig(({ command, mode }) => {
     
     // Base public path
     base: './',
+
+    // Root directory for Vite (where index.html lives)
+    root: path.resolve(__dirname, 'src'),
     
     // Configure path aliases to match tsconfig
     resolve: {
@@ -42,7 +45,8 @@ export default defineConfig(({ command, mode }) => {
     // Configure build options
     build: {
       // Output to the dist directory
-      outDir: 'dist',
+      // We changed root to `src`, so emit build output one level up
+      outDir: '../dist',
       // Generate sourcemaps in development
       sourcemap: !isProduction,
       // Minify in production
