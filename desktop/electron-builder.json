@@ -60,8 +60,7 @@
     "category": "Office",
     "target": [
       "deb",
-      "AppImage",
-      "rpm"
+      "AppImage"
     ]
   },
   "nsis": {
