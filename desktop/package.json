@@ -1,0 +1,155 @@
+{
+  "name": "erpnext-desktop",
+  "version": "0.1.0",
+  "description": "Desktop application for ERPNext - Open Source ERP System",
+  "author": {
+    "name": "Zone Enterprise",
+    "email": "info@zone-enterprise.com"
+  },
+  "scripts": {
+    "dev": "node build/scripts/dev.mjs",
+    "build": "node build/scripts/build.mjs",
+    "build:win": "node build/scripts/build.mjs --win",
+    "build:mac": "node build/scripts/build.mjs --mac",
+    "build:linux": "node build/scripts/build.mjs --linux",
+    "postinstall": "electron-rebuild",
+    "postuninstall": "electron-rebuild",
+    "start-server": "node scripts/start-server.js",
+    "lint": "eslint . --ext ts,vue",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.10.2",
+    "better-sqlite3": "^9.2.2",
+    "core-js": "^3.19.0",
+    "electron-store": "^8.0.1",
+    "express": "^4.18.2",
+    "feather-icons": "^4.28.0",
+    "frappe-node-sdk": "^1.2.0",
+    "knex": "^2.4.0",
+    "lodash": "^4.17.21",
+    "luxon": "^2.5.2",
+    "node-fetch": "2",
+    "pm2": "^5.3.0",
+    "source-map-support": "^0.5.21",
+    "vue": "^3.2.40",
+    "vue-router": "^4.0.12"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.4.1",
+    "@types/express": "^4.17.17",
+    "@types/lodash": "^4.14.179",
+    "@types/luxon": "^2.3.1",
+    "@types/node": "^17.0.23",
+    "@types/node-fetch": "^2.6.1",
+    "@typescript-eslint/eslint-plugin": "5.60.0",
+    "@typescript-eslint/parser": "5.60.0",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "autoprefixer": "^9",
+    "chokidar": "^3.5.3",
+    "dotenv": "^16.0.0",
+    "electron": "22.3.27",
+    "electron-builder": "^24.9.1",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-updater": "^6.3.0",
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^9.15.0",
+    "execa": "^7.1.1",
+    "fs-extra": "^11.1.1",
+    "postcss": "^8",
+    "prettier": "^2.4.1",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
+    "tailwindcss-rtl": "^0.9.0",
+    "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.6.2",
+    "vite": "^4.5.14",
+    "vue-tsc": "^1.6.5",
+    "yargs": "^17.7.2"
+  },
+  "resolutions": {
+    "node-abi": "^3.54.0"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "homepage": "https://frappe.io/erpnext",
+  "repository": {
+    "url": "https://github.com/Zone-Enterprise/erpnextfact"
+  },
+  "license": "GPL-3.0",
+  "build": {
+    "productName": "ERPNext Desktop",
+    "appId": "com.zone-enterprise.erpnext-desktop",
+    "asarUnpack": "**/*.node",
+    "extraResources": [
+      { "from": "assets", "to": "../assets" },
+      { "from": "config", "to": "../config" }
+    ],
+    "files": "**",
+    "extends": null,
+    "directories": {
+      "output": "dist_electron/bundled",
+      "app": "dist_electron/build"
+    },
+    "mac": {
+      "type": "distribution",
+      "category": "public.app-category.business",
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "darkModeSupport": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "publish": ["github"]
+    },
+    "win": {
+      "publisherName": "Zone Enterprise",
+      "signDlls": true,
+      "icon": "build/icon.ico",
+      "publish": ["github"],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/installerIcon.ico",
+      "uninstallerIcon": "build/uninstallerIcon.ico",
+      "publish": ["github"]
+    },
+    "linux": {
+      "icon": "build/icons",
+      "category": "Office",
+      "publish": ["github"],
+      "target": [
+        {
+          "target": "deb",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "rpm",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    }
+  }
+}

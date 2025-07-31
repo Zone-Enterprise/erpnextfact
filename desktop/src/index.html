@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://localhost:* https://localhost:*; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http://localhost:* https://localhost:*;">
+    <meta name="description" content="ERPNext Desktop - Open Source ERP System">
+    <title>ERPNext Desktop</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        }
+        
+        body {
+            background-color: #f9fafb;
+            color: #1a202c;
+        }
+        
+        #app {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .loading-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .loading-spinner:after {
+            content: " ";
+            display: block;
+            width: 32px;
+            height: 32px;
+            margin: 4px;
+            border-radius: 50%;
+            border: 4px solid #4299e1;
+            border-color: #4299e1 transparent #4299e1 transparent;
+            animation: spinner 1.2s linear infinite;
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .js-disabled {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .dark-mode {
+            background-color: #1a202c;
+            color: #f9fafb;
+        }
+        
+        noscript .js-disabled {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Vue.js app mount point -->
+    <div id="app">
+        <!-- Loading screen shown until Vue app is loaded -->
+        <div class="loading-container">
+            <img src="./assets/logo.png" alt="ERPNext Logo" class="loading-logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjNDI5OWUxIiBkPSJNNTAgMTBDMjcuOTEgMTAgMTAgMjcuOTEgMTAgNTBzMTcuOTEgNDAgNDAgNDBjMjIuMDkgMCA0MC0xNy45MSA0MC00MFM3Mi4wOSAxMCA1MCAxMHptMCA3MGMtMTYuNTQgMC0zMC0xMy40Ni0zMC0zMHMxMy40Ni0zMCAzMC0zMCAzMCAxMy40NiAzMCAzMC0xMy40NiAzMC0zMCAzMHptLTE1LTMwYzAgOC4yOCA2LjcyIDE1IDE1IDE1czE1LTYuNzIgMTUtMTUtNi43Mi0xNS0xNS0xNS0xNSA2LjcyLTE1IDE1eiIvPjwvc3ZnPg=='">
+            <div class="loading-text">Loading ERPNext Desktop...</div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+    
+    <!-- Fallback for JavaScript disabled -->
+    <noscript>
+        <div class="js-disabled">
+            <h2>JavaScript Required</h2>
+            <p>ERPNext Desktop requires JavaScript to be enabled in your browser.</p>
+            <p>Please enable JavaScript and reload the page to continue.</p>
+        </div>
+    </noscript>
+    
+    <!-- Main application script -->
+    <script type="module" src="./main.js"></script>
+    
+    <!-- Initialize theme based on system preference -->
+    <script>
+        // Check if dark mode is preferred
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        }
+        
+        // Listen for changes in color scheme preference
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        });
+        
+        // Initialize Electron API communication if available
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.erpnextAPI) {
+                console.log('ERPNext Desktop API initialized');
+                
+                // Check server status
+                window.erpnextAPI.server.checkStatus()
+                    .then(status => {
+                        console.log('Server status:', status);
+                    })
+                    .catch(err => {
+                        console.error('Failed to check server status:', err);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
