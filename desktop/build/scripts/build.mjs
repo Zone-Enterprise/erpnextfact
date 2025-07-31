@@ -23,7 +23,7 @@ import electronBuilder from 'electron-builder';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { build, Platform } = electronBuilder;
+const { build, Platform, Arch } = electronBuilder;
 
 // Get directory paths
 const __filename = fileURLToPath(import.meta.url);
@@ -68,7 +68,7 @@ const argv = yargs(hideBin(process.argv))
   .option('x64', {
     type: 'boolean',
     description: 'Build for x64 architecture',
-    default: true,
+    default: false,
   })
   .option('arm64', {
     type: 'boolean',
@@ -262,6 +262,20 @@ async function buildElectronApp() {
   if (argv.arm64) archs.push('arm64');
   if (argv.ia32 && platforms.includes('win')) archs.push('ia32');
   
+  // ------------------------------------------------------------------
+  // Fallback: if the user didn’t explicitly request any architectures
+  // (e.g. they called `--linux` without `--x64/--arm64` flags) ensure we
+  // still pass a valid architecture list to electron-builder.  Without
+  // this, the resulting value `"1"` bubbled up from yargs led to an
+  // “Unsupported arch 1” error inside electron-builder.
+  // ------------------------------------------------------------------
+  if (archs.length === 0) {
+    archs.push('x64');
+  }
+  // Debug: show the list of architectures that will be passed to
+  // electron-builder to avoid ambiguous “arch 1” issues.
+  log(`Architectures being built: ${archs.join(', ')}`);
+  
   // Build configuration
   const config = {
     // Use the new JSON-based electron-builder configuration
@@ -278,9 +292,22 @@ async function buildElectronApp() {
       // configuration file.
       const target = argv.dir ? 'dir' : null;
 
+      // Convert arch strings to Arch enum values expected by electron-builder
+      const archEnums = archs.map((arch) => {
+        switch (arch) {
+          case 'arm64':
+            return Arch.arm64;
+          case 'ia32':
+            return Arch.ia32;
+          case 'x64':
+          default:
+            return Arch.x64;
+        }
+      });
+
       await build({
         // Convert platform string to enum key expected by electron-builder
-        targets: Platform[platform.toUpperCase()].createTarget(target, archs),
+        targets: Platform[platform.toUpperCase()].createTarget(target, archEnums),
         ...config,
       });
     }
