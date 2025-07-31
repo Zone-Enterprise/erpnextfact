@@ -1,0 +1,217 @@
+name: ERPNext Desktop Release
+
+on:
+  push:
+    tags:
+      - 'desktop-v*'
+    branches:
+      - 'droid/erpnext-desktop-installer'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        default: ''
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+
+jobs:
+  build:
+    name: Build Desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            output-name: windows
+            artifact-name: windows-installer
+            build-command: npm run build:win
+          - os: macos-latest
+            output-name: mac
+            artifact-name: mac-installer
+            build-command: npm run build:mac
+          - os: ubuntu-latest
+            output-name: linux
+            artifact-name: linux-installer
+            build-command: npm run build:linux
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Set version from tag or input
+        id: set_version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/desktop-v* ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#desktop-v}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          elif [[ -n "${{ github.event.inputs.version }}" ]]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=0.0.0-dev" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'desktop/package-lock.json'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install desktop dependencies
+        run: |
+          cd desktop
+          npm ci
+        
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install frappe-bench
+          
+      - name: Build ERPNext server assets
+        run: |
+          cd desktop/build/scripts
+          node prepare-server.mjs
+        env:
+          NODE_ENV: production
+
+      - name: Update version in package.json
+        run: |
+          cd desktop
+          npm version ${{ steps.set_version.outputs.version }} --no-git-tag-version
+        shell: bash
+
+      - name: Build desktop application
+        run: |
+          cd desktop
+          ${{ matrix.build-command }}
+        env:
+          NODE_ENV: production
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: erpnext-desktop-${{ matrix.artifact-name }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.msi
+            desktop/dist/*.dmg
+            desktop/dist/*.zip
+            desktop/dist/*.deb
+            desktop/dist/*.rpm
+            desktop/dist/*.AppImage
+          if-no-files-found: warn
+          retention-days: 5
+
+  release:
+    name: Create Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set version from tag
+        id: set_version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#desktop-v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.0.1
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ERPNext Desktop v${{ steps.set_version.outputs.version }}
+          body: |
+            # ERPNext Desktop v${{ steps.set_version.outputs.version }}
+            
+            ## What's Changed
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## Installation
+            
+            ### Windows
+            - Download and run the .exe installer
+            - Alternatively, use the portable version (.zip)
+            
+            ### macOS
+            - Download the .dmg file and drag ERPNext to your Applications folder
+            
+            ### Linux
+            - Debian/Ubuntu: Download and install the .deb package
+            - Red Hat/Fedora: Download and install the .rpm package
+            - Other distributions: Use the AppImage
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/erpnext-desktop-windows-installer/*
+            artifacts/erpnext-desktop-mac-installer/*
+            artifacts/erpnext-desktop-linux-installer/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update latest release pointer
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'refs/tags/desktop-latest',
+                sha: context.sha
+              });
+            } catch (e) {
+              console.log('Tag already exists, updating...');
+              await github.rest.git.updateRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'tags/desktop-latest',
+                sha: context.sha,
+                force: true
+              });
+            }
