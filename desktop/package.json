@@ -25,7 +25,6 @@
     "electron-store": "^8.0.1",
     "express": "^4.18.2",
     "feather-icons": "^4.28.0",
-    "frappe-node-sdk": "^1.2.0",
     "knex": "^2.4.0",
     "lodash": "^4.17.21",
     "luxon": "^2.5.2",
