@@ -223,12 +223,36 @@ async function copyFiles() {
       await fs.copy(preloadSource, path.join(preloadTargetDir, 'preload.js'));
     }
     
-    // Copy assets and config directories
-    await fs.copy(assetsDir, path.join(buildDir, 'assets'));
-    await fs.copy(configDir, path.join(buildDir, 'config'));
-    
-    // Copy license and other necessary files
-    await fs.copy(path.join(rootDir, 'license.txt'), path.join(buildDir, 'license.txt'));
+    // -------------------------------------------------------------
+    // Assets & configuration – these folders are optional.
+    // The CI workflow previously failed when they were missing,
+    // so we now create empty placeholders if they do not exist.
+    // -------------------------------------------------------------
+
+    const buildAssetsDir  = path.join(buildDir, 'assets');
+    const buildConfigDir  = path.join(buildDir, 'config');
+
+    // Assets
+    if (await fs.pathExists(assetsDir)) {
+      await fs.copy(assetsDir, buildAssetsDir);
+    } else {
+      log(`Assets directory not found at ${assetsDir}, creating empty placeholder at ${buildAssetsDir}`);
+      await fs.ensureDir(buildAssetsDir);
+    }
+
+    // Config
+    if (await fs.pathExists(configDir)) {
+      await fs.copy(configDir, buildConfigDir);
+    } else {
+      log(`Config directory not found at ${configDir}, creating empty placeholder at ${buildConfigDir}`);
+      await fs.ensureDir(buildConfigDir);
+    }
+
+    // License file (optional)
+    const licenseFile = path.join(rootDir, 'license.txt');
+    if (await fs.pathExists(licenseFile)) {
+      await fs.copy(licenseFile, path.join(buildDir, 'license.txt'));
+    }
     
     log('Files copied to build directory successfully');
   } catch (error) {
