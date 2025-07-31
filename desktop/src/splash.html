@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERPNext Desktop</title>
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2c3e50, #1a2a38);
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+            border-radius: 8px;
+        }
+
+        .splash-container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 15px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #ffffff;
+            animation: fadeIn 1s ease-in-out 0.3s both;
+        }
+
+        .tagline {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in-out 0.5s both;
+        }
+
+        .status-container {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            animation: fadeIn 1s ease-in-out 0.7s both;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4299e1, #7f9cf5);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner:after {
+            content: " ";
+            display: block;
+            width: 32px;
+            height: 32px;
+            margin: 4px;
+            border-radius: 50%;
+            border: 4px solid #ffffff;
+            border-color: #ffffff transparent #ffffff transparent;
+            animation: spinner 1.2s linear infinite;
+        }
+
+        .version {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .powered-by {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Background animation */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: move 3s infinite linear;
+        }
+
+        @keyframes move {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 1;
+                border-radius: 0;
+            }
+            100% {
+                transform: translateY(-1000px) translateX(500px);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+
+        .bg-animation span:nth-child(1) {
+            top: 50%;
+            left: 20%;
+            animation-delay: 0s;
+            animation-duration: 12s;
+        }
+
+        .bg-animation span:nth-child(2) {
+            top: 20%;
+            left: 80%;
+            animation-delay: 2s;
+            animation-duration: 16s;
+        }
+
+        .bg-animation span:nth-child(3) {
+            top: 80%;
+            left: 60%;
+            animation-delay: 4s;
+            animation-duration: 13s;
+        }
+
+        .bg-animation span:nth-child(4) {
+            top: 10%;
+            left: 30%;
+            animation-delay: 6s;
+            animation-duration: 15s;
+        }
+
+        .bg-animation span:nth-child(5) {
+            top: 70%;
+            left: 10%;
+            animation-delay: 8s;
+            animation-duration: 14s;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="splash-container">
+        <div class="logo-container">
+            <img src="../assets/logo.png" alt="ERPNext Logo" class="logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTAgMTBDMjcuOTEgMTAgMTAgMjcuOTEgMTAgNTBzMTcuOTEgNDAgNDAgNDBjMjIuMDkgMCA0MC0xNy45MSA0MC00MFM3Mi4wOSAxMCA1MCAxMHptMCA3MGMtMTYuNTQgMC0zMC0xMy40Ni0zMC0zMHMxMy40Ni0zMCAzMC0zMCAzMCAxMy40NiAzMCAzMC0xMy40NiAzMC0zMCAzMHptLTE1LTMwYzAgOC4yOCA2LjcyIDE1IDE1IDE1czE1LTYuNzIgMTUtMTUtNi43Mi0xNS0xNS0xNS0xNSA2LjcyLTE1IDE1eiIvPjwvc3ZnPg=='">
+            <h1 class="logo-text">ERPNext Desktop</h1>
+            <p class="tagline">Open Source ERP System</p>
+        </div>
+
+        <div class="loading-spinner"></div>
+        
+        <div class="status-container">
+            <p class="status-text" id="status-message">Starting ERPNext server...</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="powered-by">Powered by Zone Enterprise</div>
+        <div class="version" id="version">v0.1.0</div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let progress = 0;
+        const progressBar = document.getElementById('progress-bar');
+        const statusMessage = document.getElementById('status-message');
+        const versionElement = document.getElementById('version');
+        
+        // Set initial progress animation
+        function animateProgress() {
+            if (progress < 90) {
+                progress += 0.5;
+                progressBar.style.width = `${progress}%`;
+                setTimeout(animateProgress, 300);
+            }
+        }
+        
+        // Start progress animation
+        animateProgress();
+        
+        // Listen for IPC messages from the main process
+        if (window.electronAPI) {
+            // Set version
+            window.electronAPI.getVersion().then(version => {
+                versionElement.textContent = `v${version}`;
+            });
+            
+            // Listen for status updates
+            window.electronAPI.onStatusUpdate((message) => {
+                statusMessage.textContent = message;
+                
+                // If server is ready, set progress to 100%
+                if (message.includes('ready')) {
+                    progress = 100;
+                    progressBar.style.width = '100%';
+                }
+            });
+            
+            // Listen for progress updates
+            window.electronAPI.onProgressUpdate((value) => {
+                progress = value;
+                progressBar.style.width = `${progress}%`;
+            });
+        } else {
+            // Fallback for direct browser viewing (development)
+            console.log('Electron API not available');
+            
+            // Simulate status updates for development
+            const messages = [
+                'Initializing application...',
+                'Setting up database...',
+                'Starting ERPNext server...',
+                'Loading components...',
+                'ERPNext server is ready!'
+            ];
+            
+            let messageIndex = 0;
+            
+            function simulateStatusUpdates() {
+                if (messageIndex < messages.length) {
+                    statusMessage.textContent = messages[messageIndex];
+                    messageIndex++;
+                    setTimeout(simulateStatusUpdates, 2000);
+                }
+            }
+            
+            simulateStatusUpdates();
+        }
+    </script>
+</body>
+</html>
