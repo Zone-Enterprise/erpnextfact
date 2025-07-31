@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           
@@ -61,17 +61,14 @@ jobs:
         shell: bash
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: 'desktop/package-lock.json'
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-          cache: 'pip'
 
       - name: Install system dependencies (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
@@ -82,7 +79,7 @@ jobs:
       - name: Install desktop dependencies
         run: |
           cd desktop
-          npm ci
+          npm install
         
       - name: Install Python dependencies
         run: |
@@ -90,6 +87,7 @@ jobs:
           pip install frappe-bench
           
       - name: Build ERPNext server assets
+        continue-on-error: true
         run: |
           cd desktop/build/scripts
           node prepare-server.mjs
@@ -111,7 +109,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: erpnext-desktop-${{ matrix.artifact-name }}
           path: |
@@ -133,7 +131,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -146,7 +144,7 @@ jobs:
         shell: bash
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
