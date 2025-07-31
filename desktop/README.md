@@ -4,22 +4,246 @@
 
 ## Overview
 
-ERPNext Desktop is an Electron-based wrapper for ERPNext that provides a native desktop application experience across Windows, macOS, and Linux platforms. It allows users to run ERPNext locally without complex server setup, making it accessible for small businesses and individual users.
+ERPNext Desktop is a comprehensive Electron-based desktop application that provides a native experience for running ERPNext ERP system locally. Built with modern technologies and designed for cross-platform compatibility, it eliminates the need for complex server setup while maintaining full ERPNext functionality.
+
+## System Architecture
+
+```mermaid
+graph TB
+    subgraph "ERPNext Desktop Application"
+        subgraph "Electron Framework"
+            MP[Main Process<br/>TypeScript/Node.js]
+            RP[Renderer Process<br/>Vue.js 3 + TypeScript]
+            PL[Preload Script<br/>Security Bridge]
+        end
+        
+        subgraph "Backend Services"
+            ES[ERPNext Server<br/>Frappe Framework]
+            DB[(Database Layer<br/>MariaDB/SQLite)]
+            FS[File System<br/>Local Storage]
+        end
+        
+        subgraph "Native Integration"
+            OS[Operating System<br/>Windows/macOS/Linux]
+            AU[Auto Updater<br/>GitHub Releases]
+            NOTIF[System Notifications]
+        end
+    end
+    
+    MP --> RP
+    MP --> PL
+    RP --> PL
+    MP --> ES
+    ES --> DB
+    MP --> FS
+    MP --> OS
+    MP --> AU
+    MP --> NOTIF
+    
+    classDef electron fill:#61dafb
+    classDef backend fill:#4caf50
+    classDef native fill:#ff9800
+    
+    class MP,RP,PL electron
+    class ES,DB,FS backend
+    class OS,AU,NOTIF native
+```
+
+## Application Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Desktop as Desktop App
+    participant Server as ERPNext Server
+    participant DB as Database
+    participant FS as File System
+    
+    User->>Desktop: Launch Application
+    Desktop->>FS: Initialize directories
+    Desktop->>DB: Setup database
+    Desktop->>Server: Start ERPNext server
+    Server->>DB: Connect to database
+    Server->>Desktop: Server ready
+    Desktop->>User: Show ERPNext interface
+    
+    User->>Desktop: User actions
+    Desktop->>Server: API requests
+    Server->>DB: Data operations
+    DB->>Server: Results
+    Server->>Desktop: Response
+    Desktop->>User: Update interface
+```
 
 ### Key Features
 
-- **Offline Capability**: Run ERPNext without an internet connection
-- **Embedded Database**: Built-in MariaDB or SQLite database options
-- **Simple Installation**: User-friendly installers for all major platforms
-- **Auto-updates**: Seamless application updates
-- **Native Experience**: Feels like a native application rather than a web app
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Zero Configuration**: No need for complex server setup
-- **Data Portability**: Export and import your data easily
-- **Automatic Backups**: Scheduled backups to prevent data loss
-- **Resource Efficient**: Optimized for desktop environments
+```mermaid
+mindmap
+  root((ERPNext Desktop))
+    Cross-Platform
+      Windows Support
+      macOS Support
+      Linux Support
+      Universal Binaries
+    Database Options
+      Embedded MariaDB
+      System MariaDB
+      SQLite Support
+      Auto-Configuration
+    User Experience
+      Native Interface
+      Offline Capability
+      Auto-Updates
+      Zero Configuration
+    Developer Features
+      Hot Reload
+      TypeScript Support
+      Vue.js 3
+      Modern Build Tools
+    Security
+      Process Isolation
+      Secure IPC
+      Data Encryption
+      Code Signing
+```
+
+- **🖥️ Cross-platform Support**: Native applications for Windows, macOS, and Linux
+- **💾 Flexible Database Options**: Built-in MariaDB, system MariaDB, or SQLite support  
+- **📦 Simple Installation**: User-friendly installers with auto-update capability
+- **🔄 Zero Configuration**: Automatic setup and configuration management
+- **⚡ Native Performance**: Optimized desktop experience with offline capability
+- **🌐 Full ERPNext Functionality**: Complete ERP system with all modules
+- **🔒 Enterprise Security**: Secure local deployment with data protection
+- **🛠️ Developer Friendly**: Modern development stack with TypeScript and Vue.js
+
+## Documentation
+
+### 📚 Comprehensive Technical Documentation
+
+This project includes extensive technical documentation with visual diagrams and detailed architecture analysis:
+
+```mermaid
+graph TB
+    subgraph "📖 Documentation Structure"
+        README[README.md<br/>📍 Main Overview]
+        
+        subgraph "🏗️ Architecture & Design"
+            ARCH[docs/architecture.md<br/>🏛️ System Architecture]
+            PROC[docs/processes.md<br/>⚙️ Process Orchestration]
+            SEC[docs/security.md<br/>🔒 Security Model]
+        end
+        
+        subgraph "🛠️ Development & Deployment"
+            DEV[docs/development.md<br/>👨‍💻 Developer Guide]
+            API[docs/api.md<br/>🔌 IPC API Reference]
+            CONFIG[docs/configuration.md<br/>⚙️ Configuration Management]
+            DEPLOY[docs/deployment.md<br/>🚀 Build & Deployment]
+        end
+        
+        subgraph "🩺 Support & Maintenance"
+            TROUBLE[docs/troubleshooting.md<br/>🔧 Troubleshooting Guide]
+        end
+    end
+    
+    README --> ARCH
+    README --> PROC
+    README --> SEC
+    README --> DEV
+    README --> API
+    README --> CONFIG
+    README --> DEPLOY
+    README --> TROUBLE
+    
+    classDef main fill:#4caf50
+    classDef architecture fill:#2196f3
+    classDef development fill:#ff9800
+    classDef support fill:#9c27b0
+    
+    class README main
+    class ARCH,PROC,SEC architecture
+    class DEV,API,CONFIG,DEPLOY development
+    class TROUBLE support
+```
+
+#### 🎯 Quick Navigation
+
+| Document | Description | Key Features |
+|----------|-------------|--------------|
+| **[Architecture](docs/architecture.md)** | Complete system architecture with mermaid diagrams | Process flows, security model, database design |
+| **[Process Orchestration](docs/processes.md)** | Detailed process communication and workflows | Startup sequences, IPC patterns, error handling |
+| **[Security Model](docs/security.md)** | Comprehensive security analysis | Sandboxing, encryption, code signing |
+| **[Developer Guide](docs/development.md)** | Complete development setup and guidelines | Environment setup, coding standards, testing |
+| **[IPC API Reference](docs/api.md)** | Full API documentation with examples | Type definitions, usage patterns, error handling |
+| **[Configuration](docs/configuration.md)** | Configuration management system | Settings schema, validation, migration |
+| **[Build & Deployment](docs/deployment.md)** | Build pipeline and distribution | CI/CD, cross-platform builds, releases |
+| **[Troubleshooting](docs/troubleshooting.md)** | Comprehensive troubleshooting guide | Common issues, diagnostics, recovery |
+
+#### 🎨 Visual Documentation Features
+
+- **Mermaid Diagrams**: Architecture flows, sequence diagrams, state machines
+- **PlantUML Sequences**: Detailed process communication patterns  
+- **Mind Maps**: Feature organization and system relationships
+- **ER Diagrams**: Database schema and relationships
+- **Network Diagrams**: System integrations and data flows
+
+#### 🔍 Documentation Highlights
+
+- **Complete Architecture Analysis**: Multi-process architecture, security boundaries, performance considerations
+- **Developer-Friendly**: Setup guides, coding standards, API references with TypeScript definitions
+- **Operational Excellence**: Deployment automation, monitoring, troubleshooting procedures
+- **Security-First**: Detailed security model, threat analysis, mitigation strategies
+
 
 ## System Requirements
+
+```mermaid
+graph TB
+    subgraph "💻 Platform Support"
+        WIN[Windows 10+<br/>64-bit]
+        MAC[macOS 10.15+<br/>Intel/Apple Silicon]
+        LINUX[Linux<br/>Ubuntu 20.04+, Fedora 34+]
+    end
+    
+    subgraph "⚡ Hardware Requirements"
+        CPU[CPU<br/>2GHz+ Intel/AMD]
+        RAM[Memory<br/>4GB minimum, 8GB recommended]
+        DISK[Storage<br/>2GB minimum, 5GB recommended]
+        NET[Network<br/>Internet for updates]
+    end
+    
+    subgraph "🗄️ Database Options"
+        EMBEDDED[Embedded MariaDB<br/>Windows included]
+        SYSTEM[System MariaDB<br/>macOS/Linux]
+        SQLITE[SQLite<br/>All platforms]
+    end
+    
+    WIN --> CPU
+    MAC --> CPU
+    LINUX --> CPU
+    CPU --> RAM
+    RAM --> DISK
+    DISK --> NET
+    
+    WIN --> EMBEDDED
+    MAC --> SYSTEM
+    LINUX --> SQLITE
+    
+    classDef platform fill:#4caf50
+    classDef hardware fill:#2196f3
+    classDef database fill:#ff9800
+    
+    class WIN,MAC,LINUX platform
+    class CPU,RAM,DISK,NET hardware
+    class EMBEDDED,SYSTEM,SQLITE database
+```
+
+### Platform-Specific Requirements
+
+| Platform | Minimum | Recommended | Database |
+|----------|---------|-------------|----------|
+| **Windows** | Windows 10 64-bit, 4GB RAM, 2GB storage | Windows 11, 8GB RAM, 5GB storage | Embedded MariaDB |
+| **macOS** | macOS 10.15+, 4GB RAM, 2GB storage | Latest macOS, 8GB RAM, 5GB storage | Homebrew MariaDB |
+| **Linux** | Ubuntu 20.04+, 4GB RAM, 2GB storage | Latest LTS, 8GB RAM, 5GB storage | Package Manager MariaDB |
 
 ### Windows
 - Windows 10 or later (64-bit)
@@ -39,9 +263,71 @@ ERPNext Desktop is an Electron-based wrapper for ERPNext that provides a native 
 - 2GB free disk space (5GB recommended)
 - Intel/AMD processor (2GHz or faster)
 
-## Development Setup
+## Technology Stack
 
-### Prerequisites
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        VUE[Vue.js 3<br/>Reactive UI Framework]
+        TS[TypeScript<br/>Type Safety]
+        VITE[Vite<br/>Fast Build Tool]
+        CSS[CSS3/Tailwind<br/>Modern Styling]
+    end
+    
+    subgraph "Desktop Layer"
+        ELECTRON[Electron 22.3.27<br/>Cross-platform Runtime]
+        NODE[Node.js<br/>Backend Runtime]
+        IPC[IPC Communication<br/>Secure Messaging]
+    end
+    
+    subgraph "Application Layer"
+        FRAPPE[Frappe Framework<br/>Web Framework]
+        ERPNEXT[ERPNext<br/>ERP Application]
+        PYTHON[Python<br/>Server Language]
+    end
+    
+    subgraph "Data Layer"
+        MARIADB[(MariaDB<br/>Primary Database)]
+        SQLITE[(SQLite<br/>Embedded Option)]
+        FILES[File System<br/>Local Storage]
+    end
+    
+    subgraph "Build & Deploy"
+        BUILDER[electron-builder<br/>Packaging]
+        GITHUB[GitHub Actions<br/>CI/CD Pipeline]
+        RELEASES[GitHub Releases<br/>Distribution]
+    end
+    
+    VUE --> ELECTRON
+    TS --> ELECTRON
+    VITE --> ELECTRON
+    CSS --> VUE
+    ELECTRON --> NODE
+    NODE --> IPC
+    IPC --> FRAPPE
+    FRAPPE --> ERPNEXT
+    ERPNEXT --> PYTHON
+    PYTHON --> MARIADB
+    PYTHON --> SQLITE
+    NODE --> FILES
+    ELECTRON --> BUILDER
+    BUILDER --> GITHUB
+    GITHUB --> RELEASES
+    
+    classDef frontend fill:#4fc3f7
+    classDef desktop fill:#81c784  
+    classDef application fill:#ffb74d
+    classDef data fill:#f06292
+    classDef build fill:#ba68c8
+    
+    class VUE,TS,VITE,CSS frontend
+    class ELECTRON,NODE,IPC desktop
+    class FRAPPE,ERPNEXT,PYTHON application
+    class MARIADB,SQLITE,FILES data
+    class BUILDER,GITHUB,RELEASES build
+```
+
+## Development Setup
 
 - Node.js v20.18.1 or later
 - Yarn package manager
