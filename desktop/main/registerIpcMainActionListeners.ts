@@ -55,7 +55,14 @@ export default function registerIpcMainActionListeners(main: Main): void {
   // Settings management actions
   ipcMain.handle('settings-get-all', () => {
     try {
-      return main.store.store;
+      return {
+        serverPort: main.store.get('serverPort'),
+        siteName: main.store.get('siteName'),
+        databaseType: main.store.get('databaseType'),
+        mariadbConfig: main.store.get('mariadbConfig'),
+        autoStart: main.store.get('autoStart'),
+        firstRun: main.store.get('firstRun')
+      };
     } catch (error) {
       log.error('Error getting all settings:', error);
       throw new Error('Failed to get settings');
@@ -218,10 +225,10 @@ export default function registerIpcMainActionListeners(main: Main): void {
     return main.siteName;
   });
 
-  ipcMain.handle('update-database-config', async (_, config) => {
+  ipcMain.handle('update-database-config', async (_, config: { type: 'mariadb' | 'sqlite', mariadb?: any }) => {
     try {
       main.store.set('databaseType', config.type);
-      if (config.type === 'mariadb') {
+      if (config.type === 'mariadb' && config.mariadb) {
         main.store.set('mariadbConfig', config.mariadb);
       }
       
@@ -240,7 +247,11 @@ export default function registerIpcMainActionListeners(main: Main): void {
   // File dialogs and external URLs
   ipcMain.handle('show-open-dialog', async (_, options) => {
     try {
-      return await dialog.showOpenDialog(options);
+      const result = await dialog.showOpenDialog(options);
+      return {
+        canceled: result.canceled,
+        filePaths: result.canceled ? [] : result.filePaths
+      };
     } catch (error) {
       log.error('Error showing open dialog:', error);
       throw new Error('Failed to show open dialog');
@@ -249,7 +260,11 @@ export default function registerIpcMainActionListeners(main: Main): void {
 
   ipcMain.handle('show-save-dialog', async (_, options) => {
     try {
-      return await dialog.showSaveDialog(options);
+      const result = await dialog.showSaveDialog(options);
+      return {
+        canceled: result.canceled,
+        filePath: result.canceled ? undefined : result.filePath
+      };
     } catch (error) {
       log.error('Error showing save dialog:', error);
       throw new Error('Failed to show save dialog');

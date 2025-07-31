@@ -128,6 +128,84 @@ cd desktop && yarn build --linux
 - `--dir`: Build unpacked directory only (no installers)
 - `--clean`: Clean build directories before building
 
+## Release Process
+
+ERPNext Desktop provides an automated pipeline for generating signed installers for
+Windows (`.exe` and portable `.zip`), macOS (`.dmg`/`.zip`), and Linux
+(`.deb`, `.rpm`, `AppImage`).  
+Releases are built and uploaded to the **GitHub Releases** page of the repository.
+
+### 1. Automatic Release (Recommended)
+
+1. Bump the version and tag the commit **desktop-vX.Y.Z** (for example
+   `desktop-v1.2.3`).  
+   The helper script below automates this.
+2. Push the tag to GitHub.  
+3. GitHub Actions workflow **desktop-release.yml** is triggered and will:
+   - Build the desktop application on Windows, macOS and Linux runners.  
+   - Upload all generated installers as workflow artifacts.  
+   - Create/Update a GitHub Release with the generated binaries and a changelog.
+
+You can monitor progress in the repository’s *Actions* tab.
+
+### 2. Manual Release Script
+
+Inside the `desktop/scripts` folder there is a helper script:
+
+```bash
+cd desktop/scripts
+./release.sh 1.2.3        # replace with desired version
+```
+
+The script will:
+
+• Update the version in `desktop/package.json`  
+• Commit the change  
+• Create and push the `desktop-v1.2.3` tag – triggering the workflow above  
+
+If the push fails (e.g. due to missing permissions) the script tells you the exact
+`git push` command to run manually.
+
+### 3. Manual Workflow Dispatch
+
+If you need to rebuild an existing tag or run a release without pushing a tag:
+
+1. Go to *Actions → ERPNext Desktop Release*.  
+2. Click **Run workflow**.  
+3. Select the branch (usually `droid/erpnext-desktop-installer`) and type the
+   version (without the `desktop-v` prefix).  
+
+### 4. Code Signing
+
+Binaries are signed automatically **only** if the required certificates are
+available as repository secrets:
+
+• `WINDOWS_CERTIFICATE` & `WINDOWS_CERT_PASSWORD` for Windows signing  
+• `APPLE_CERTIFICATE` & `APPLE_CERT_PASSWORD` for macOS notarisation  
+
+Replace the placeholder icon files (`build/icon.*`, `build/icons/*.png`) with
+real icons before cutting a production release.
+
+### 5. Release Availability
+
+Successful builds appear under the *Releases* section:
+
+```text
+https://github.com/Zone-Enterprise/erpnextfact/releases
+```
+
+Download the installer that matches your operating system.
+
+### 6. Troubleshooting Release Builds
+
+• **Workflow fails on “Prepare server bundle”** – Ensure `frappe-bench` and the
+  required apps exist or commit a pre-built `server-bundle.zip`.  
+• **Codesign step fails** – Check that the signing certificates are correctly
+  uploaded and that passwords (if any) are set in repository secrets.  
+• **macOS notarisation timeout** – Apple’s servers can be slow; re-run the job.  
+• **Artifacts missing** – Verify the build produced files in `desktop/dist/`
+  and that the glob patterns in the workflow match the filenames.  
+
 ## Architecture Overview
 
 ERPNext Desktop is built on several key technologies:

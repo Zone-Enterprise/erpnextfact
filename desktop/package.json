@@ -12,6 +12,7 @@
     "build:win": "node build/scripts/build.mjs --win",
     "build:mac": "node build/scripts/build.mjs --mac",
     "build:linux": "node build/scripts/build.mjs --linux",
+    "build:test": "npx vite build && npx electron-builder --linux dir --config electron-builder.json",
     "postinstall": "electron-rebuild",
     "postuninstall": "electron-rebuild",
     "start-server": "node scripts/start-server.js",
@@ -25,7 +26,6 @@
     "electron-store": "^8.0.1",
     "express": "^4.18.2",
     "feather-icons": "^4.28.0",
-    "frappe-node-sdk": "^1.2.0",
     "knex": "^2.4.0",
     "lodash": "^4.17.21",
     "luxon": "^2.5.2",
@@ -45,7 +45,9 @@
     "@typescript-eslint/eslint-plugin": "5.60.0",
     "@typescript-eslint/parser": "5.60.0",
     "@vitejs/plugin-vue": "^4.2.3",
+    "archiver": "^5.3.1",
     "autoprefixer": "^9",
+    "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
     "dotenv": "^16.0.0",
     "electron": "22.3.27",
@@ -89,13 +91,13 @@
     "asarUnpack": "**/*.node",
     "extraResources": [
       { "from": "assets", "to": "../assets" },
-      { "from": "config", "to": "../config" }
+      { "from": "config", "to": "../config" },
+      { "from": "src/assets", "to": "../assets" }
     ],
     "files": "**",
     "extends": null,
     "directories": {
-      "output": "dist_electron/bundled",
-      "app": "dist_electron/build"
+      "output": "dist"
     },
     "mac": {
       "type": "distribution",
