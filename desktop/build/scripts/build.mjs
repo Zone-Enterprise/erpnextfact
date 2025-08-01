@@ -330,8 +330,34 @@ async function buildElectronApp() {
       });
 
       await build({
-        // Convert platform string to enum key expected by electron-builder
-        targets: Platform[platform.toUpperCase()].createTarget(target, archEnums),
+        // --------------------------------------------------------------
+        // Map our simple string identifiers to electron-builder enums.
+        // Platform.<PLATFORM>.createTarget(...) is the officially
+        // supported way to obtain a `Map<Platform, Map<Arch, string[]>>`
+        // required by the `build()` API.
+        //
+        // The previous implementation used
+        //   Platform[platform.toUpperCase()]
+        // which fails on Windows runners because the enum keys are
+        // `WINDOWS`, `MAC`, `LINUX` not `WIN`/`MAC`/`LINUX`.
+        // --------------------------------------------------------------
+        targets: (() => {
+          let platformEnum;
+          switch (platform) {
+            case 'win':
+              platformEnum = Platform.WINDOWS;
+              break;
+            case 'mac':
+              platformEnum = Platform.MAC;
+              break;
+            case 'linux':
+              platformEnum = Platform.LINUX;
+              break;
+            default:
+              throw new Error(`Unknown platform: ${platform}`);
+          }
+          return platformEnum.createTarget(target, archEnums);
+        })(),
         ...config,
       });
     }

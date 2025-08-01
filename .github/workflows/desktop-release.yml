@@ -74,7 +74,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          # GTK & common build deps
+          sudo apt-get install -y libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf
+          # WebKit GTK – different Ubuntu releases expose 4.0 or 4.1 dev headers.
+          # Try 4.0 first; if it doesn’t exist, fall back to 4.1.
+          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+            || sudo apt-get install -y libwebkit2gtk-4.1-dev
 
       - name: Install desktop dependencies
         run: |
