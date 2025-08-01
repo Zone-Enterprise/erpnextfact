@@ -3,13 +3,13 @@ name: ERPNext Dev Desktop Release
 on:
   push:
     tags:
-      - '*-v*'
+      - 'desktop-dev-v*'
     branches:
       - 'develop'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number (e.g., 1.0.0)'
+        description: 'Version number (e.g., 1.0.0-dev)'
         required: true
         default: ''
 
@@ -49,14 +49,16 @@ jobs:
       - name: Set version from tag or input
         id: set_version
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/desktop-v* ]]; then
+          if [[ "${{ github.ref }}" == refs/tags/desktop-dev-v* ]]; then
             VERSION="${{ github.ref_name }}"
-            VERSION="${VERSION#desktop-v}"
+            VERSION="${VERSION#desktop-dev-v}"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
           elif [[ -n "${{ github.event.inputs.version }}" ]]; then
             echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
           else
-            echo "version=0.0.0-dev" >> $GITHUB_OUTPUT
+            # Create a dev version with timestamp
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            echo "version=0.0.0-dev.$TIMESTAMP" >> $GITHUB_OUTPUT
           fi
         shell: bash
 
@@ -64,6 +66,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: desktop/package-lock.json
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -84,7 +88,10 @@ jobs:
       - name: Install desktop dependencies
         run: |
           cd desktop
-          npm install
+          npm ci --no-optional
+          # Verify critical dependencies are installed
+          npm list electron-builder || npm install electron-builder
+          npm list electron || npm install electron
         
       - name: Install Python dependencies
         run: |
@@ -95,7 +102,15 @@ jobs:
         continue-on-error: true
         run: |
           cd desktop/build/scripts
-          node prepare-server.mjs
+          echo "Preparing server assets..."
+          node prepare-server.mjs || echo "Server preparation failed, continuing with build"
+          # Check if server bundle was created
+          if [ -f "../src/assets/server-bundle.zip" ]; then
+            echo "Server bundle created successfully"
+            ls -la "../src/assets/server-bundle.zip"
+          else
+            echo "No server bundle found, desktop app will run without embedded server"
+          fi
         env:
           NODE_ENV: production
 
@@ -105,13 +120,45 @@ jobs:
           npm version ${{ steps.set_version.outputs.version }} --no-git-tag-version
         shell: bash
 
+      - name: Prepare build environment
+        run: |
+          cd desktop
+          # Ensure required directories exist
+          mkdir -p src/assets
+          mkdir -p config
+          mkdir -p assets
+          # Create a basic index.html if it doesn't exist
+          if [ ! -f src/index.html ]; then
+            cat > src/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>ERPNext Desktop</title>
+          </head>
+          <body>
+              <div id="app"></div>
+              <script type="module" src="/main.js"></script>
+          </body>
+          </html>
+          EOF
+          fi
+          echo "Build environment prepared"
+
       - name: Build desktop application
         run: |
           cd desktop
+          echo "Building with command: ${{ matrix.build-command }}"
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "Working directory: $(pwd)"
+          ls -la node_modules/.bin/ | head -10 || echo "node_modules/.bin not found"
           ${{ matrix.build-command }}
         env:
           NODE_ENV: production
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG: electron-builder
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -131,7 +178,7 @@ jobs:
   release:
     name: Create Release
     needs: build
-    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    if: startsWith(github.ref, 'refs/tags/desktop-dev-v')
     runs-on: ubuntu-latest
     
     steps:
@@ -144,7 +191,7 @@ jobs:
         id: set_version
         run: |
           VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#desktop-v}"
+          VERSION="${VERSION#desktop-dev-v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -167,9 +214,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: ERPNext Desktop v${{ steps.set_version.outputs.version }}
+          name: ERPNext Desktop Dev v${{ steps.set_version.outputs.version }}
           body: |
-            # ERPNext Desktop v${{ steps.set_version.outputs.version }}
+            # ERPNext Desktop Dev v${{ steps.set_version.outputs.version }}
+            
+            ⚠️ **This is a development release** - Use for testing purposes only.
             
             ## What's Changed
             ${{ steps.changelog.outputs.changelog }}
@@ -188,7 +237,7 @@ jobs:
             - Red Hat/Fedora: Download and install the .rpm package
             - Other distributions: Use the AppImage
           draft: false
-          prerelease: false
+          prerelease: true
           files: |
             artifacts/erpnext-desktop-windows-installer/*
             artifacts/erpnext-desktop-mac-installer/*
@@ -205,7 +254,7 @@ jobs:
               await github.rest.git.createRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'refs/tags/desktop-latest',
+                ref: 'refs/tags/desktop-dev-latest',
                 sha: context.sha
               });
             } catch (e) {
@@ -213,7 +262,7 @@ jobs:
               await github.rest.git.updateRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'tags/desktop-latest',
+                ref: 'tags/desktop-dev-latest',
                 sha: context.sha,
                 force: true
               });

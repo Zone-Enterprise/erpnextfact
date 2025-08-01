@@ -144,6 +144,9 @@ async function buildFrontend() {
 async function compileTypeScript() {
   log('Compiling TypeScript files...');
   try {
+    // Check if TypeScript and tsc are available
+    await execa('npx', ['tsc', '--version'], { cwd: desktopDir, stdio: 'pipe' });
+    
     // We explicitly disable "noEmitOnError" so that the build continues even if
     // there are TypeScript type-checking errors. This is useful in CI where we
     // prefer producing a runnable binary over blocking on non-critical typings.
@@ -155,6 +158,8 @@ async function compileTypeScript() {
         path.join(desktopDir, 'tsconfig.json'),
         '--noEmitOnError',
         'false',
+        '--skipLibCheck',
+        'true'
       ],
       {
       cwd: desktopDir,
@@ -384,10 +389,7 @@ async function main() {
     
     // Build frontend and compile TypeScript
     await buildFrontend();
-    // Skip TypeScript compilation temporarily – focus on resolving
-    // electron-builder packaging issues first. Re-enable once the
-    // packaging pipeline is stable.
-    // await compileTypeScript();
+    await compileTypeScript();
     
     // Copy files to build directory
     await copyFiles();
