@@ -7,6 +7,9 @@
     "buildResources": "build",
     "app": "dist_electron/build"
   },
+  "extraMetadata": {
+    "main": "main.js"
+  },
   "files": [
     "**/*",
     "!node_modules/**/{CHANGELOG.md,README.md,README,readme.md,readme}",
