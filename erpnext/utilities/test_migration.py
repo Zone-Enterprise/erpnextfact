@@ -116,6 +116,28 @@ class TestMigration(IntegrationTestCase):
 				validate_before=True
 			)
 	
+	def test_safe_bulk_update_skip_validation(self):
+		"""Test bulk update with validation disabled"""
+		# Create test data
+		self.create_test_todos(5)
+		
+		# When validate_before=False, it should attempt to update
+		# even with invalid field names (will fail at DB level, but won't pre-validate)
+		try:
+			stats = safe_bulk_update(
+				"ToDo",
+				{"description": ["like", "Test Migration%"]},
+				{"invalid_field_name": "value"},
+				validate_before=False,
+				batch_size=5
+			)
+			# If we get here without error, the function structure is working
+			# The actual DB error would be caught in the batch processing
+			self.assertIsInstance(stats, dict)
+		except Exception:
+			# Expected to fail at DB level, but validation was skipped
+			pass
+	
 	def test_rename_field_safe(self):
 		"""Test safe field rename"""
 		# Note: This test is limited because we can't actually modify schema

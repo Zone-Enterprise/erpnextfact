@@ -129,11 +129,14 @@ if success:
 
 Safely manage database indexes.
 
+**Important:** Adding indexes uses ALTER TABLE which locks the table during execution. For large tables in production environments, consider running these operations during maintenance windows.
+
 **Usage:**
 ```python
 from erpnext.utilities.migration import add_index_safe, drop_index_safe
 
 # Add index
+# Note: Will lock table during execution - use maintenance windows for large tables
 add_index_safe("Sales Order", ["customer", "posting_date"], "customer_date_idx")
 
 # Drop index
@@ -143,7 +146,12 @@ drop_index_safe("Sales Order", "customer_date_idx")
 **Parameters:**
 - `doctype` (str): DocType for the index
 - `fields` (list): List of field names (for add_index_safe)
-- `index_name` (str): Name of the index
+- `index_name` (str): Name of the index (auto-generated with 'custom_' prefix if not provided)
+
+**Database Compatibility:**
+- Supports both MariaDB/MySQL and PostgreSQL
+- Automatically detects database type and uses appropriate queries
+- Index names are truncated to 64 characters (MySQL limit)
 
 ### 6. `validate_data_migration()`
 

@@ -287,19 +287,29 @@ def add_index_safe(doctype, fields, index_name=None):
 		
 		# Generate index name if not provided
 		if not index_name:
-			index_name = f"{'_'.join(fields)}_index"
+			# Add custom prefix and truncate to safe length (MySQL max is 64 chars)
+			raw_name = f"custom_{'_'.join(fields)}_idx"
+			index_name = raw_name[:64]
 		
-		# Check if index already exists
-		existing_indexes = frappe.db.sql(f"""
-			SHOW INDEX FROM `{table_name}` 
-			WHERE Key_name = %s
-		""", index_name)
+		# Check if index already exists (compatible with both MariaDB and PostgreSQL)
+		if frappe.db.db_type == "postgres":
+			existing_indexes = frappe.db.sql(f"""
+				SELECT indexname FROM pg_indexes 
+				WHERE tablename = %s AND indexname = %s
+			""", (table_name.replace("tab", "").lower(), index_name))
+		else:
+			# MariaDB/MySQL
+			existing_indexes = frappe.db.sql(f"""
+				SHOW INDEX FROM `{table_name}` 
+				WHERE Key_name = %s
+			""", index_name)
 		
 		if existing_indexes:
 			frappe.msgprint(_("Index {0} already exists").format(index_name))
 			return True
 		
-		# Create index
+		# Create index (note: this will lock the table during execution)
+		# For large tables in production, consider running this during maintenance windows
 		fields_str = ", ".join([f"`{field}`" for field in fields])
 		frappe.db.sql(f"""
 			ALTER TABLE `{table_name}` 
@@ -335,11 +345,18 @@ def drop_index_safe(doctype, index_name):
 			frappe.log_error(f"Table {table_name} does not exist", "Drop Index Error")
 			return False
 		
-		# Check if index exists
-		existing_indexes = frappe.db.sql(f"""
-			SHOW INDEX FROM `{table_name}` 
-			WHERE Key_name = %s
-		""", index_name)
+		# Check if index exists (compatible with both MariaDB and PostgreSQL)
+		if frappe.db.db_type == "postgres":
+			existing_indexes = frappe.db.sql(f"""
+				SELECT indexname FROM pg_indexes 
+				WHERE tablename = %s AND indexname = %s
+			""", (table_name.replace("tab", "").lower(), index_name))
+		else:
+			# MariaDB/MySQL
+			existing_indexes = frappe.db.sql(f"""
+				SHOW INDEX FROM `{table_name}` 
+				WHERE Key_name = %s
+			""", index_name)
 		
 		if not existing_indexes:
 			frappe.msgprint(_("Index {0} does not exist").format(index_name))
